@@ -71,7 +71,7 @@ class _ProductScreenState extends State<ProductScreen> {
       final response = await http.get(Uri.parse('http://localhost/MyProject/backendapi/products/get_products.php')); 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true) {
+        if (data['success'] == 200) {
           final List<Product> loadedProducts = (data['data'] as List)
               .map((item) => Product.fromJson(item))
               .toList();
@@ -79,10 +79,10 @@ class _ProductScreenState extends State<ProductScreen> {
             products = loadedProducts;
           });
         } else {
-          print('Lỗi dữ liệu: ${data['message']}');
+          print('Lỗi dữ liệu: \\${data['message']}');
         }
       } else {
-        print('Lỗi kết nối API: ${response.statusCode}');
+        print('Lỗi kết nối API: \\${response.statusCode}');
       }
     } catch (e) {
       print('Lỗi tải sản phẩm: $e');

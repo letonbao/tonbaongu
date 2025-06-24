@@ -3,15 +3,35 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../products/product_screen.dart';
 
-// class SideMenu extends StatelessWidget {
-//   const SideMenu({
-//     Key? key,
-//   }) : super(key: key);
-
 class SideMenu extends StatelessWidget {
   final Function(String)? onMenuSelected;
 
   const SideMenu({Key? key, this.onMenuSelected}) : super(key: key);
+
+  void _logout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận đăng xuất'),
+          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+              child: const Text('Đăng xuất'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +44,12 @@ class SideMenu extends StatelessWidget {
           DrawerListTile(
             title: "Bảng điều khiển",
             svgSrc: "assets/icons/bangdieukhien.svg",
-            press: () {},
+            press: () {
+              if (onMenuSelected != null) {
+                onMenuSelected!("Bảng điều khiển");
+              }
+            },
           ),
-          // DrawerListTile(
-          //   title: "Sản phẩm",
-          //   svgSrc: "assets/icons/sanpham.svg",
-          //   press: () {
-          //     Navigator.push(
-          //   context,
-          //     MaterialPageRoute(builder: (context) => const ProductScreen()),
-          //     );
-          //   },
-          // ),
-          // Sản phẩm đã chỉnh sửa để gọi hàm onMenuSelected
           DrawerListTile(
             title: "Sản phẩm",
             svgSrc: "assets/icons/sanpham.svg",
@@ -55,11 +68,6 @@ class SideMenu extends StatelessWidget {
               }
             },
           ),
-          // DrawerListTile(
-          //   title: "Chi tiết đơn hàng",
-          //   svgSrc: "assets/icons/chitietdonhang.svg",
-          //   press: () {},
-          // ),
           DrawerListTile(
             title: "Chi tiết đơn hàng",
             svgSrc: "assets/icons/chitietdonhang.svg",
@@ -69,11 +77,6 @@ class SideMenu extends StatelessWidget {
               }
             },
           ),
-          // DrawerListTile(
-          //   title: "Giỏ hàng",
-          //   svgSrc: "assets/icons/giohang.svg",
-          //   press: () {},
-          // ),
           DrawerListTile(
             title: "Giỏ hàng",
             svgSrc: "assets/icons/giohang.svg",
@@ -92,11 +95,6 @@ class SideMenu extends StatelessWidget {
               }
             },
           ),
-          // DrawerListTile(
-          //   title: "Địa chỉ",
-          //   svgSrc: "assets/icons/diachi.svg",
-          //   press: () {},
-          // ),
           DrawerListTile(
             title: "Địa chỉ",
             svgSrc: "assets/icons/diachi.svg",
@@ -106,11 +104,6 @@ class SideMenu extends StatelessWidget {
               }
             },
           ),
-          // DrawerListTile(
-          //   title: "Danh sách yêu thích",
-          //   svgSrc: "assets/icons/danhsachyeuthich.svg",
-          //   press: () {},
-          // ),
           DrawerListTile(
             title: "Danh sách yêu thích",
             svgSrc: "assets/icons/danhsachyeuthich.svg",
@@ -120,11 +113,6 @@ class SideMenu extends StatelessWidget {
               }
             },
           ),
-          // DrawerListTile(
-          //   title: "Đánh giá",
-          //   svgSrc: "assets/icons/danhgia.svg",
-          //   press: () {},
-          // ),
           DrawerListTile(
             title: "Đánh giá",
             svgSrc: "assets/icons/danhgia.svg",
@@ -134,11 +122,6 @@ class SideMenu extends StatelessWidget {
               }
             },
           ),
-          // DrawerListTile(
-          //   title: "Thanh toán",
-          //   svgSrc: "assets/icons/thanhtoan.svg",
-          //   press: () {},
-          // ),
           DrawerListTile(
             title: "Thanh toán",
             svgSrc: "assets/icons/thanhtoan.svg",
@@ -147,6 +130,12 @@ class SideMenu extends StatelessWidget {
                 onMenuSelected!("Thanh toán");
               }
             },
+          ),
+          const Divider(color: Colors.white54),
+          DrawerListTile(
+            title: "Đăng xuất",
+            svgSrc: "assets/icons/dangxuat.svg",
+            press: () => _logout(context),
           ),
         ],
       ),

@@ -55,6 +55,28 @@ class UserTable extends StatelessWidget {
     }
   }
 
+  String _getRoleDisplayName(String role) {
+    switch (role) {
+      case 'admin':
+        return 'Quản trị viên';
+      case 'user':
+        return 'Người dùng';
+      default:
+        return role;
+    }
+  }
+
+  Color _getRoleColor(String role) {
+    switch (role) {
+      case 'admin':
+        return Colors.red;
+      case 'user':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -66,6 +88,7 @@ class UserTable extends StatelessWidget {
           DataColumn(label: Text('Mật khẩu')),
           DataColumn(label: Text('SĐT')),
           DataColumn(label: Text('Email')),
+          DataColumn(label: Text('Vai trò')),
           DataColumn(label: Text('Hành động')),
         ],
         rows: users.map((user) {
@@ -75,6 +98,23 @@ class UserTable extends StatelessWidget {
             DataCell(Text(user.matKhau)),
             DataCell(Text(user.soDienThoai)),
             DataCell(Text(user.email)),
+            DataCell(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getRoleColor(user.role),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _getRoleDisplayName(user.role),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
             DataCell(Row(
               children: [
                 IconButton(

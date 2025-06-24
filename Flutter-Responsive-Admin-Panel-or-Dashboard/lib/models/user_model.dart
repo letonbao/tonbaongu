@@ -4,6 +4,7 @@ class User {
   final String matKhau;
   final String soDienThoai;
   final String email;
+  final String role; 
 
   User({
     required this.maND,
@@ -11,6 +12,7 @@ class User {
     required this.matKhau,
     required this.soDienThoai,
     required this.email,
+    required this.role,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class User {
       matKhau: json['MatKhau'],
       soDienThoai: json['SoDienThoai'],
       email: json['Email'],
+      role: json['Role'],
     );
   }
 
@@ -30,6 +33,7 @@ class User {
       'MatKhau': matKhau,
       'SoDienThoai': soDienThoai,
       'Email': email,
+      'Role': role,
     };
   }
 }

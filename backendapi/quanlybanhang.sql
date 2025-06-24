@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Jun 23, 2025 at 04:37 AM
--- Server version: 8.2.0
--- PHP Version: 8.2.13
+-- Máy chủ: 127.0.0.1:3306
+-- Thời gian đã tạo: Th6 24, 2025 lúc 05:17 AM
+-- Phiên bản máy phục vụ: 8.2.0
+-- Phiên bản PHP: 8.2.13
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `quanlybanhang`
+-- Cơ sở dữ liệu: `quanlybanhang`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `chitietdonhang`
+-- Cấu trúc bảng cho bảng `chitietdonhang`
 --
 
 DROP TABLE IF EXISTS `chitietdonhang`;
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `chitietdonhang` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `danhgia`
+-- Cấu trúc bảng cho bảng `danhgia`
 --
 
 DROP TABLE IF EXISTS `danhgia`;
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `danhgia` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `danhsachyeuthich`
+-- Cấu trúc bảng cho bảng `danhsachyeuthich`
 --
 
 DROP TABLE IF EXISTS `danhsachyeuthich`;
@@ -72,12 +72,21 @@ CREATE TABLE IF NOT EXISTS `danhsachyeuthich` (
   PRIMARY KEY (`MaDSYT`),
   KEY `MaND` (`MaND`),
   KEY `MaSanPham` (`MaSanPham`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `danhsachyeuthich`
+--
+
+INSERT INTO `danhsachyeuthich` (`MaDSYT`, `MaND`, `MaSanPham`) VALUES
+(1, 6, 4),
+(2, 6, 1),
+(3, 6, 2);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `diachi`
+-- Cấu trúc bảng cho bảng `diachi`
 --
 
 DROP TABLE IF EXISTS `diachi`;
@@ -87,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `diachi` (
   `DuongPho` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `Tinh` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `ThanhPho` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `MaBuuDien` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `MaBuuDien` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`MaDC`),
   KEY `MaND` (`MaND`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -95,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `diachi` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `donhang`
+-- Cấu trúc bảng cho bảng `donhang`
 --
 
 DROP TABLE IF EXISTS `donhang`;
@@ -110,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `donhang` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `donhang`
+-- Đang đổ dữ liệu cho bảng `donhang`
 --
 
 INSERT INTO `donhang` (`MaDH`, `MaND`, `NgayDatHang`, `TongGiaTri`, `TrangThaiDonHang`) VALUES
@@ -120,7 +129,7 @@ INSERT INTO `donhang` (`MaDH`, `MaND`, `NgayDatHang`, `TongGiaTri`, `TrangThaiDo
 -- --------------------------------------------------------
 
 --
--- Table structure for table `giohang`
+-- Cấu trúc bảng cho bảng `giohang`
 --
 
 DROP TABLE IF EXISTS `giohang`;
@@ -138,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `giohang` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `nguoidung`
+-- Cấu trúc bảng cho bảng `nguoidung`
 --
 
 DROP TABLE IF EXISTS `nguoidung`;
@@ -146,24 +155,29 @@ CREATE TABLE IF NOT EXISTS `nguoidung` (
   `MaND` int NOT NULL AUTO_INCREMENT,
   `Ten` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `MatKhau` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `SoDienThoai` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `SoDienThoai` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `Email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `Role` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'user',
   PRIMARY KEY (`MaND`),
   UNIQUE KEY `Email` (`Email`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ;
 
 --
--- Dumping data for table `nguoidung`
+-- Đang đổ dữ liệu cho bảng `nguoidung`
 --
 
-INSERT INTO `nguoidung` (`MaND`, `Ten`, `MatKhau`, `SoDienThoai`, `Email`) VALUES
-(1, 'Nguyễn Văn A', '123456412', '0901234567', 'vana@example.com'),
-(4, 'few', '123123', '4184184', 'b@gmail.com');
+INSERT INTO `nguoidung` (`MaND`, `Ten`, `MatKhau`, `SoDienThoai`, `Email`, `Role`) VALUES
+(1, 'Nguyễn Văn A', '123456412', '0901234567', 'vana@example.com', 'admin'),
+(4, 'few', '123123', '4184184', 'b@gmail.com', 'user'),
+(6, 'bao ngu', '123', '09123123121', 'tonbao@gmail.com', 'user'),
+(8, 'ton bao', '123', '09123123121', 'tonbao1@gmail.com', 'user'),
+(10, 'Admin mới', 'admin123', '0900000000', 'admin@gmail.com', 'admin'),
+(11, 'Khách mới', 'user123', '0900111222', 'user@example.com', 'user');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sanpham`
+-- Cấu trúc bảng cho bảng `sanpham`
 --
 
 DROP TABLE IF EXISTS `sanpham`;
@@ -181,18 +195,18 @@ CREATE TABLE IF NOT EXISTS `sanpham` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `sanpham`
+-- Đang đổ dữ liệu cho bảng `sanpham`
 --
 
 INSERT INTO `sanpham` (`MaSanPham`, `TenSanPham`, `Mota`, `Gia`, `SoLuongTonKho`, `TrangThai`, `MauSac`, `KichCo`, `HinhAnh`) VALUES
-(1, 'Áo thun nam', 'Áo thun chất lượng cao', 199000.00, 20, 'Còn hàng', 'Đen', 'XL', 'assets/images/shirt.png'),
+(1, 'Áo thun nam', 'Áo thun chất lượng cao', 199000.00, 20, 'Còn hàng', 'Đen', 'XXL', 'assets/images/shirt.png'),
 (2, 'Áo len nữ', 'Sang trọng , quý phái', 299000.00, 15, 'Còn hàng', 'Xám', 'M', 'assets/images/aolen.png'),
 (4, 'Áo len nam', 'Áo len siêu đẹp', 50000.00, 1, 'Còn hàng', 'Đen, trắng', 'L', 'assets/images/shirt_len.png');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `thanhtoan`
+-- Cấu trúc bảng cho bảng `thanhtoan`
 --
 
 DROP TABLE IF EXISTS `thanhtoan`;
@@ -207,51 +221,24 @@ CREATE TABLE IF NOT EXISTS `thanhtoan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Constraints for dumped tables
+-- Các ràng buộc cho các bảng đã đổ
 --
 
 --
--- Constraints for table `chitietdonhang`
---
-ALTER TABLE `chitietdonhang`
-  ADD CONSTRAINT `chitietdonhang_ibfk_1` FOREIGN KEY (`MaDH`) REFERENCES `donhang` (`MaDH`),
-  ADD CONSTRAINT `chitietdonhang_ibfk_2` FOREIGN KEY (`MaSanPham`) REFERENCES `sanpham` (`MaSanPham`);
-
---
--- Constraints for table `danhgia`
---
-ALTER TABLE `danhgia`
-  ADD CONSTRAINT `danhgia_ibfk_1` FOREIGN KEY (`MaND`) REFERENCES `nguoidung` (`MaND`),
-  ADD CONSTRAINT `danhgia_ibfk_2` FOREIGN KEY (`MaSanPham`) REFERENCES `sanpham` (`MaSanPham`);
-
---
--- Constraints for table `danhsachyeuthich`
---
-ALTER TABLE `danhsachyeuthich`
-  ADD CONSTRAINT `danhsachyeuthich_ibfk_1` FOREIGN KEY (`MaND`) REFERENCES `nguoidung` (`MaND`),
-  ADD CONSTRAINT `danhsachyeuthich_ibfk_2` FOREIGN KEY (`MaSanPham`) REFERENCES `sanpham` (`MaSanPham`);
-
---
--- Constraints for table `diachi`
---
-ALTER TABLE `diachi`
-  ADD CONSTRAINT `diachi_ibfk_1` FOREIGN KEY (`MaND`) REFERENCES `nguoidung` (`MaND`);
-
---
--- Constraints for table `donhang`
+-- Các ràng buộc cho bảng `donhang`
 --
 ALTER TABLE `donhang`
   ADD CONSTRAINT `donhang_ibfk_1` FOREIGN KEY (`MaND`) REFERENCES `nguoidung` (`MaND`);
 
 --
--- Constraints for table `giohang`
+-- Các ràng buộc cho bảng `giohang`
 --
 ALTER TABLE `giohang`
   ADD CONSTRAINT `giohang_ibfk_1` FOREIGN KEY (`MaND`) REFERENCES `nguoidung` (`MaND`),
   ADD CONSTRAINT `giohang_ibfk_2` FOREIGN KEY (`MaSanPham`) REFERENCES `sanpham` (`MaSanPham`);
 
 --
--- Constraints for table `thanhtoan`
+-- Các ràng buộc cho bảng `thanhtoan`
 --
 ALTER TABLE `thanhtoan`
   ADD CONSTRAINT `thanhtoan_ibfk_1` FOREIGN KEY (`MaDH`) REFERENCES `donhang` (`MaDH`);

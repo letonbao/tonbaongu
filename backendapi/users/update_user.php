@@ -19,9 +19,10 @@ if (!empty($data['MaND'])) {
     $matkhau = $data['MatKhau'];
     $sdt = $data['SoDienThoai'];
     $email = $data['Email'];
+    $role = $data['Role'] ?? 'user'; // Default to 'user' if not provided
 
-    $stmt = $conn->prepare("UPDATE nguoidung SET Ten=?, MatKhau=?, SoDienThoai=?, Email=? WHERE MaND=?");
-    $stmt->bind_param("ssssi", $ten, $matkhau, $sdt, $email, $maND);
+    $stmt = $conn->prepare("UPDATE nguoidung SET Ten=?, MatKhau=?, SoDienThoai=?, Email=?, Role=? WHERE MaND=?");
+    $stmt->bind_param("sssssi", $ten, $matkhau, $sdt, $email, $role, $maND);
 
     if ($stmt->execute()) {
         echo json_encode(["success" => true, "message" => "Cập nhật thành công"]);
