@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AuthService {
-static const String baseUrl = 'http://localhost/MyProject/backendapi';
+static const String baseUrl = 'http://localhost/clothing_project/tonbaongu/backendapi';
 
 
   static Future<Map<String, dynamic>> login(String email, String password) async {
@@ -86,6 +86,31 @@ static const String baseUrl = 'http://localhost/MyProject/backendapi';
       return {
         'success': false,
         'message': 'Lỗi kết nối 111: $e',
+      };
+    }
+  }
+
+  static Future<Map<String, dynamic>> getProductsDetail() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/products/get_products_detail.php'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        return {
+          'success': false,
+          'message': 'Lỗi kết nối server: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Lỗi kết nối: $e',
       };
     }
   }

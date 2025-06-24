@@ -12,8 +12,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> products = [];
+  List<Map<String, dynamic>> productsDetail = [];
   bool isLoading = true;
   Map<String, dynamic>? currentUser;
+  Map<int, String?> selectedColors = {};
+  Map<int, String?> selectedSizes = {};
 
   @override
   void initState() {
@@ -30,9 +33,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadProducts() async {
     try {
       final result = await AuthService.getProducts();
-      if (result['success'] == 200) {
+      final detailResult = await AuthService.getProductsDetail();
+      
+      if (result['success'] == 200 && detailResult['success'] == 200) {
         setState(() {
           products = List<Map<String, dynamic>>.from(result['data'] ?? []);
+          productsDetail = List<Map<String, dynamic>>.from(detailResult['data'] ?? []);
           isLoading = false;
         });
       } else {
@@ -41,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message'] ?? 'Lỗi tải sản phẩm'),
+            content: Text(result['message'] ?? detailResult['message'] ?? 'Lỗi tải sản phẩm'),
             backgroundColor: Colors.red,
           ),
         );
@@ -85,6 +91,67 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         );
       },
+    );
+  }
+
+  // Add method to get product details by MaSanPham
+  List<Map<String, dynamic>> _getProductDetails(String maSanPham) {
+    return productsDetail.where((detail) => detail['MaSanPham'] == maSanPham).toList();
+  }
+
+  // Add method to calculate price based on color and size
+  double _calculatePrice(Map<String, dynamic> product, int index) {
+    // Get product details for this specific product
+    List<Map<String, dynamic>> details = _getProductDetails(product['MaSanPham'] ?? '');
+    
+    // Find the specific detail based on selected color and size
+    Map<String, dynamic>? selectedDetail;
+    String? selectedColor = selectedColors[index];
+    String? selectedSize = selectedSizes[index];
+    
+    if (selectedColor != null && selectedSize != null) {
+      selectedDetail = details.firstWhere(
+        (detail) => 
+          detail['MauSac']?.toString().toLowerCase().contains(selectedColor.toLowerCase()) == true &&
+          detail['KichCo']?.toString().toLowerCase().contains(selectedSize.toLowerCase()) == true,
+        orElse: () => details.isNotEmpty ? details.first : {},
+      );
+    } else if (details.isNotEmpty) {
+      selectedDetail = details.first;
+    }
+    
+    // Use price from detail if available, otherwise use base product price
+    double basePrice = 0.0;
+    try {
+      if (selectedDetail != null && selectedDetail['Gia'] != null) {
+        if (selectedDetail['Gia'] is int) {
+          basePrice = (selectedDetail['Gia'] as int).toDouble();
+        } else if (selectedDetail['Gia'] is double) {
+          basePrice = selectedDetail['Gia'] as double;
+        } else if (selectedDetail['Gia'] is String) {
+          basePrice = double.tryParse(selectedDetail['Gia'] as String) ?? 0.0;
+        }
+      } else if (product['Gia'] != null) {
+        if (product['Gia'] is int) {
+          basePrice = (product['Gia'] as int).toDouble();
+        } else if (product['Gia'] is double) {
+          basePrice = product['Gia'] as double;
+        } else if (product['Gia'] is String) {
+          basePrice = double.tryParse(product['Gia'] as String) ?? 0.0;
+        }
+      }
+    } catch (e) {
+      basePrice = 0.0;
+    }
+    
+    return basePrice;
+  }
+
+  // Format price with thousand separators
+  String _formatPrice(double price) {
+    return price.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]},'
     );
   }
 
@@ -270,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     
                                     // Product Info
                                     Expanded(
-                                      flex: 2,
+                                      flex: 3,
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Column(
@@ -286,15 +353,160 @@ class _HomeScreenState extends State<HomeScreen> {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                             const SizedBox(height: 4),
-                                            Text(
-                                              '${product['Gia']?.toString() ?? '0'} VNĐ',
-                                              style: TextStyle(
-                                                color: Colors.orange.shade700,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
+
+                                            // Price display with original and adjusted prices
+                                            Builder(
+                                              builder: (context) {
+                                                // Get product details for this specific product
+                                                List<Map<String, dynamic>> details = _getProductDetails(product['MaSanPham'] ?? '');
+                                                
+                                                // Safely convert price to double with proper error handling
+                                                double basePrice = 0.0;
+                                                try {
+                                                  if (details.isNotEmpty && details.first['Gia'] != null) {
+                                                    if (details.first['Gia'] is int) {
+                                                      basePrice = (details.first['Gia'] as int).toDouble();
+                                                    } else if (details.first['Gia'] is double) {
+                                                      basePrice = details.first['Gia'] as double;
+                                                    } else if (details.first['Gia'] is String) {
+                                                      basePrice = double.tryParse(details.first['Gia'] as String) ?? 0.0;
+                                                    }
+                                                  } else if (product['Gia'] != null) {
+                                                    if (product['Gia'] is int) {
+                                                      basePrice = (product['Gia'] as int).toDouble();
+                                                    } else if (product['Gia'] is double) {
+                                                      basePrice = product['Gia'] as double;
+                                                    } else if (product['Gia'] is String) {
+                                                      basePrice = double.tryParse(product['Gia'] as String) ?? 0.0;
+                                                    }
+                                                  }
+                                                } catch (e) {
+                                                  basePrice = 0.0;
+                                                }
+                                                
+                                                double adjustedPrice = _calculatePrice(product, index);
+                                                
+                                                return Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    // Show original price
+                                                    Text(
+                                                      '${_formatPrice(basePrice)} VNĐ',
+                                                      style: TextStyle(
+                                                        color: Colors.grey.shade600,
+                                                        fontSize: 12,
+                                                        decoration: adjustedPrice > basePrice ? TextDecoration.lineThrough : null,
+                                                      ),
+                                                    ),
+                                                    
+                                                    // Show adjusted price if different
+                                                    if (adjustedPrice != basePrice)
+                                                      Text(
+                                                        '${_formatPrice(adjustedPrice)} VNĐ',
+                                                        style: TextStyle(
+                                                          color: Colors.orange.shade700,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 16,
+                                                        ),
+                                                      )
+                                                    else
+                                                      Text(
+                                                        '${_formatPrice(adjustedPrice)} VNĐ',
+                                                        style: TextStyle(
+                                                          color: Colors.orange.shade700,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                  ],
+                                                );
+                                              },
                                             ),
                                             const SizedBox(height: 8),
+
+                                            // Color and Size selection dropdowns in the same row
+                                            Builder(
+                                              builder: (context) {
+                                                List<Map<String, dynamic>> details = _getProductDetails(product['MaSanPham'] ?? '');
+                                                List<String> availableColors = details.map((detail) => detail['MauSac']?.toString() ?? '').where((color) => color.isNotEmpty).toSet().toList();
+                                                List<String> availableSizes = details.map((detail) => detail['KichCo']?.toString() ?? '').where((size) => size.isNotEmpty).toSet().toList();
+                                                
+                                                return Row(
+                                                  children: [
+                                                    // Color dropdown
+                                                    if (availableColors.isNotEmpty)
+                                                      Expanded(
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.grey.shade300),
+                                                            borderRadius: BorderRadius.circular(4),
+                                                          ),
+                                                          child: DropdownButton<String>(
+                                                            value: selectedColors[index],
+                                                            hint: const Text('Màu', style: TextStyle(fontSize: 30)),
+                                                            isExpanded: true,
+                                                            underline: Container(),
+                                                            icon: const Icon(Icons.arrow_drop_down, size: 16),
+                                                            items: availableColors.map((String color) {
+                                                              return DropdownMenuItem<String>(
+                                                                value: color.trim(),
+                                                                child: Text(
+                                                                  color.trim(),
+                                                                  style: const TextStyle(fontSize: 20),
+                                                                ),
+                                                              );
+                                                            }).toList(),
+                                                            onChanged: (String? newValue) {
+                                                              setState(() {
+                                                                selectedColors[index] = newValue;
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    
+                                                    const SizedBox(width: 8),
+                                                    
+                                                    // Size dropdown
+                                                    if (availableSizes.isNotEmpty)
+                                                      Expanded(
+                                                        child: Container(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.grey.shade300),
+                                                            borderRadius: BorderRadius.circular(4),
+                                                          ),
+                                                          child: DropdownButton<String>(
+                                                            value: selectedSizes[index],
+                                                            hint: const Text('Size', style: TextStyle(fontSize: 30)),
+                                                            isExpanded: true,
+                                                            underline: Container(),
+                                                            icon: const Icon(Icons.arrow_drop_down, size: 16),
+                                                            items: availableSizes.map((String size) {
+                                                              return DropdownMenuItem<String>(
+                                                                value: size.trim(),
+                                                                child: Text(
+                                                                  size.trim(),
+                                                                  style: const TextStyle(fontSize: 20),
+                                                                ),
+                                                              );
+                                                            }).toList(),
+                                                            onChanged: (String? newValue) {
+                                                              setState(() {
+                                                                selectedSizes[index] = newValue;
+                                                              });
+                                                            },
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+
+                                            const SizedBox(height: 8),
+
                                             SizedBox(
                                               width: double.infinity,
                                               child: ElevatedButton(
