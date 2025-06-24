@@ -17,7 +17,7 @@ if (!empty($data['Email']) && !empty($data['MatKhau'])) {
     $email = $data['Email'];
     $matkhau = $data['MatKhau'];
 
-    $stmt = $conn->prepare("SELECT MaND, Ten, Email, SoDienThoai FROM nguoidung WHERE Email = ? AND MatKhau = ?");
+    $stmt = $conn->prepare("SELECT MaND, Ten, Email, SoDienThoai, Role FROM nguoidung WHERE Email = ? AND MatKhau = ?");
     $stmt->bind_param("ss", $email, $matkhau);
     $stmt->execute();
     $result = $stmt->get_result();

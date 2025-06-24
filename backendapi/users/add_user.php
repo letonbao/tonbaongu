@@ -18,9 +18,10 @@ if (!empty($data['Ten']) && !empty($data['MatKhau']) && !empty($data['Email'])) 
     $matkhau = $data['MatKhau'];
     $sdt = $data['SoDienThoai'] ?? '';
     $email = $data['Email'];
+    $role = $data['Role'] ?? 'user'; // Default to 'user' if not provided
 
-    $stmt = $conn->prepare("INSERT INTO nguoidung (Ten, MatKhau, SoDienThoai, Email) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $ten, $matkhau, $sdt, $email);
+    $stmt = $conn->prepare("INSERT INTO nguoidung (Ten, MatKhau, SoDienThoai, Email, Role) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $ten, $matkhau, $sdt, $email, $role);
 
     if ($stmt->execute()) {
         echo json_encode(["success" => 200, "message" => "Thêm người dùng thành công"]);

@@ -27,7 +27,7 @@ class _UserScreenState extends State<UserScreen> {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      if (data['success'] == true) {
+      if (data['success'] == 200) {
         final List<User> loadedUsers = (data['data'] as List)
             .map((json) => User.fromJson(json))
             .toList();

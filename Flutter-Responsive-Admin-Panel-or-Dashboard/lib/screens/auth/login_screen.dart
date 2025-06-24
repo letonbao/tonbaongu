@@ -30,17 +30,39 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      if (result['success'] == true) {
-        // Login successful
+      print('Login result: $result'); // Debug log
+
+      if (result['success'] == 200) {
+        // Check if user is admin
+        final userRole = result['user']?['Role'] ?? 'user';
+        
+        if (userRole != 'admin') {
+          // User is not admin
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Bạn không có quyền truy cập vào admin panel'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Login successful for admin
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message'] ?? 'Đăng nhập thành công'),
             backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
           ),
         );
         
+        // Wait a bit for user to see the message
+        await Future.delayed(const Duration(milliseconds: 500));
+        
         // Navigate to main screen or dashboard
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        }
       } else {
         // Login failed
         ScaffoldMessenger.of(context).showSnackBar(
@@ -51,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      print('Login error: $e'); // Debug log
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Lỗi kết nối: $e'),
@@ -58,9 +81,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

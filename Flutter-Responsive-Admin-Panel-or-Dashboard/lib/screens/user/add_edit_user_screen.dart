@@ -19,6 +19,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
   late TextEditingController matKhauController;
   late TextEditingController sdtController;
   late TextEditingController emailController;
+  String selectedRole = 'user'; // Default role
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
     matKhauController = TextEditingController(text: widget.user?.matKhau ?? '');
     sdtController = TextEditingController(text: widget.user?.soDienThoai ?? '');
     emailController = TextEditingController(text: widget.user?.email ?? '');
+    selectedRole = widget.user?.role ?? 'user';
   }
 
   @override
@@ -48,6 +50,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
         matKhau: matKhauController.text,
         soDienThoai: sdtController.text,
         email: emailController.text,
+        role: selectedRole,
       );
       String url;
       Map<String, dynamic> body;
@@ -58,6 +61,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
           'MatKhau': newUser.matKhau,
           'SoDienThoai': newUser.soDienThoai,
           'Email': newUser.email,
+          'Role': newUser.role,
         };
       } else {
         url = 'http://localhost/MyProject/backendapi/users/update_user.php';
@@ -67,6 +71,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
           'MatKhau': newUser.matKhau,
           'SoDienThoai': newUser.soDienThoai,
           'Email': newUser.email,
+          'Role': newUser.role,
         };
       }
       try {
@@ -102,6 +107,26 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
     );
   }
 
+  Widget _buildRoleDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DropdownButtonFormField<String>(
+        value: selectedRole,
+        decoration: const InputDecoration(labelText: 'Vai trò'),
+        items: const [
+          DropdownMenuItem(value: 'user', child: Text('Người dùng')),
+          DropdownMenuItem(value: 'admin', child: Text('Quản trị viên')),
+        ],
+        onChanged: (value) {
+          setState(() {
+            selectedRole = value!;
+          });
+        },
+        validator: (value) => value == null ? "Vui lòng chọn vai trò" : null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,6 +144,7 @@ class _AddEditUserScreenState extends State<AddEditUserScreen> {
               _buildTextField(matKhauController, "Mật khẩu"),
               _buildTextField(sdtController, "Số điện thoại"),
               _buildTextField(emailController, "Email"),
+              _buildRoleDropdown(),
               const SizedBox(height: 20),
               ElevatedButton(onPressed: _saveUser, child: const Text("Lưu")),
             ],

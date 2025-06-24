@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:userfe/screens/home/home_screen.dart';
+import 'package:userfe/screens/dashboard/admin_dashboard_screen.dart';
 import 'package:userfe/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -55,11 +56,24 @@ class _LoginScreenState extends State<LoginScreen> {
       // Chờ một chút để người dùng thấy thông báo (tùy chọn)
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Chuyển sang HomeScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
+      // Kiểm tra role và điều hướng
+      final userRole = result['user']['Role'] ?? 'user';
+      
+      if (userRole == 'admin') {
+        // Điều hướng đến Admin Dashboard
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminDashboardScreen(user: result['user']),
+          ),
+        );
+      } else {
+        // Điều hướng đến Home Screen cho user thường
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
     } else {
       // Đăng nhập thất bại
       if (!mounted) return;
