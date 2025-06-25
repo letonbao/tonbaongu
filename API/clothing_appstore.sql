@@ -56,7 +56,6 @@ CREATE TABLE product_variants (
   color ENUM('white','black','purple','pink','blue','silver','red','yellow','green','brown','gray','orange') NOT NULL,
   size ENUM('S','M','L','XL','XXL','XXXL') NOT NULL,
   material ENUM('Cotton','Linen','Wool','Polyester','Denim','Leather','Silk','Nylon') NOT NULL,
-  style ENUM('T-Shirts','Shirts','Jackets & Coats','Pants','Shorts','Knitwear','Suits & Blazers','Hoodies','Underwear','Loungewear') NOT NULL,
   price DECIMAL(15,2) NOT NULL,
   stock INT NOT NULL DEFAULT 0,
   image_url VARCHAR(255),
@@ -157,10 +156,10 @@ INSERT INTO products (name, description, category, gender_target) VALUES
 ('Áo len nữ cao cấp', 'Áo len chất liệu wool mềm mại', 'Knitwear', 'female');
 
 -- PRODUCT VARIANTS
-INSERT INTO product_variants (product_id, color, size, material, style, price, stock, image_url, status) VALUES
-(1, 'black', 'M', 'Cotton', 'T-Shirts', 199000, 10, 'images/shirt_black_m.png', 'active'),
-(1, 'white', 'L', 'Cotton', 'T-Shirts', 209000, 5, 'images/shirt_white_l.png', 'active'),
-(2, 'pink', 'S', 'Wool', 'Knitwear', 299000, 8, 'images/knitwear_pink_s.png', 'active');
+INSERT INTO product_variants (product_id, color, size, material, price, stock, image_url, status) VALUES
+(1, 'black', 'M', 'Cotton', 199000, 10, 'images/shirt_black_m.png', 'active'),
+(1, 'white', 'L', 'Cotton', 209000, 5, 'images/shirt_white_l.png', 'active'),
+(2, 'pink', 'S', 'Wool', 299000, 8, 'images/knitwear_pink_s.png', 'active');
 
 -- ORDERS
 INSERT INTO orders (user_id, address_id, order_date, total_amount, status) VALUES
