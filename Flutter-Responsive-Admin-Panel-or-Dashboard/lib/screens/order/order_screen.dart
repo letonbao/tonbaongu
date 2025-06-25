@@ -14,11 +14,18 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   List<Order> orders = [];
+  bool isLoading = true;
+  String? errorMessage;
 
   Future<void> _loadOrders() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
     try {
       final response = await http.get(
-        Uri.parse('http://localhost/MyProject/backendapi/orders/get_orders.php'),
+        Uri.parse('http://localhost/clothing_project/tonbaongu/API/orders/get_orders.php'),
       );
 
       if (response.statusCode == 200) {
@@ -29,15 +36,25 @@ class _OrderScreenState extends State<OrderScreen> {
               .toList();
           setState(() {
             orders = loadedOrders;
+            isLoading = false;
           });
         } else {
-          print("Lỗi: ${data['message']}");
+          setState(() {
+            errorMessage = data['message'] ?? 'Lỗi không xác định';
+            isLoading = false;
+          });
         }
       } else {
-        print("Lỗi kết nối API: ${response.statusCode}");
+        setState(() {
+          errorMessage = 'Lỗi kết nối API: ${response.statusCode}';
+          isLoading = false;
+        });
       }
     } catch (e) {
-      print("Lỗi khi load đơn hàng: $e");
+      setState(() {
+        errorMessage = 'Lỗi khi load đơn hàng: $e';
+        isLoading = false;
+      });
     }
   }
 
@@ -59,20 +76,52 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Danh sách đơn hàng", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            ElevatedButton(onPressed: _addOrder, child: const Text("Thêm đơn hàng")),
+            Row(
+              children: [
+                const Text(
+                  "Quản lý đơn hàng",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: const Text("Thêm đơn hàng"),
+                  onPressed: _addOrder,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (errorMessage != null)
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: _loadOrders,
+                      child: const Text("Thử lại"),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Expanded(
+                child: OrderTable(orders: orders, onReload: _loadOrders),
+              ),
           ],
         ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: OrderTable(orders: orders, onReload: _loadOrders),
-        ),
-      ],
+      ),
     );
   }
 }

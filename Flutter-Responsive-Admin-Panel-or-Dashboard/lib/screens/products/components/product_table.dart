@@ -1,115 +1,154 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../../../models/product_model.dart';
 import '../add_edit_product_screen.dart';
+import '../product_variant_screen.dart';
 
 class ProductTable extends StatelessWidget {
   final List<Product> products;
   final Function onReload;
+  final Function(Product)? onEdit;
+  final Function(int)? onDelete;
 
-  const ProductTable({Key? key, required this.products, required this.onReload}) : super(key: key);
-
-  Future<void> _deleteProduct(BuildContext context, String productId) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Xác nhận"),
-        content: const Text("Bạn có chắc chắn muốn xóa sản phẩm này?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Hủy")),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Xóa")),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      try {
-        final response = await http.post(
-          Uri.parse("http://localhost/MyProject/backendapi/products/delete_product.php"),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'MaSanPham': productId}),
-        );
-
-        if (response.statusCode == 200) {
-          final result = json.decode(response.body);
-          if (result['success'] == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Xóa sản phẩm thành công")),
-            );
-            onReload();
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Lỗi: ${result['message']}")),
-            );
-          }
-        } else {
-          throw Exception("Kết nối thất bại");
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Lỗi xóa: $e")),
-        );
-      }
-    }
-  }
+  const ProductTable({
+    Key? key, 
+    required this.products, 
+    required this.onReload,
+    this.onEdit,
+    this.onDelete,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('ID')),
-          DataColumn(label: Text('Tên sản phẩm')),
-          DataColumn(label: Text('Mô tả')),
-          DataColumn(label: Text('Giá')),
-          DataColumn(label: Text('Tồn kho')),
-          DataColumn(label: Text('Trạng thái')),
-          DataColumn(label: Text('Màu sắc')),
-          DataColumn(label: Text('Kích cỡ')),
-          DataColumn(label: Text('Hình ảnh')),
-          DataColumn(label: Text('Hành động')),
-        ],
-        rows: products.map((product) {
-          return DataRow(cells: [
-            DataCell(Text(product.maSanPham)),
-            DataCell(Text(product.tenSanPham)),
-            DataCell(Text(product.mota)),
-            DataCell(Text(product.gia.toString())),
-            DataCell(Text(product.soLuongTonKho.toString())),
-            DataCell(Text(product.trangThai)),
-            DataCell(Text(product.mauSac)),
-            DataCell(Text(product.kichCo)),
-            DataCell(
-              product.hinhAnh.isNotEmpty
-                  ? Image.network(product.hinhAnh, width: 40, height: 40, fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error))
-                  : const SizedBox(width: 40, height: 40),
+    return DataTable(
+      columns: const [
+        DataColumn(label: Text('ID')),
+        DataColumn(label: Text('Tên sản phẩm')),
+        DataColumn(label: Text('Danh mục')),
+        DataColumn(label: Text('Đối tượng')),
+        DataColumn(label: Text('Giá thấp nhất')),
+        DataColumn(label: Text('Giá cao nhất')),
+        DataColumn(label: Text('Tổng tồn kho')),
+        DataColumn(label: Text('Số biến thể')),
+        DataColumn(label: Text('Trạng thái')),
+        DataColumn(label: Text('Hành động')),
+      ],
+      rows: products.map((product) {
+        return DataRow(cells: [
+          DataCell(Text(product.id.toString())),
+          DataCell(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  product.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                if (product.description.isNotEmpty)
+                  Text(
+                    product.description,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
             ),
-            DataCell(Row(
+          ),
+          DataCell(Text(product.category)),
+          DataCell(Text(product.genderTarget)),
+          DataCell(
+            Text(
+              '${product.minPrice.toStringAsFixed(0)} VNĐ',
+              style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+            ),
+          ),
+          DataCell(
+            Text(
+              '${product.maxPrice.toStringAsFixed(0)} VNĐ',
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+          DataCell(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: product.totalStock > 0 ? Colors.green : Colors.red,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                product.totalStock.toString(),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+          DataCell(
+            Row(
+              children: [
+                Text(product.variants.length.toString()),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(Icons.list, size: 16, color: Colors.blue),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductVariantScreen(productId: product.id),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          DataCell(
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: product.hasActiveVariants ? Colors.blue : Colors.grey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                product.hasActiveVariants ? 'Hoạt động' : 'Không hoạt động',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+          ),
+          DataCell(
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
                   icon: const Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () async {
-                    final updatedProduct = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => AddEditProductScreen(product: product),
-                      ),
-                    );
-                    if (updatedProduct != null) onReload();
+                  onPressed: () {
+                    if (onEdit != null) {
+                      onEdit!(product);
+                    }
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteProduct(context, product.maSanPham),
+                  onPressed: () {
+                    if (onDelete != null) {
+                      onDelete!(product.id);
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle, color: Colors.green),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductVariantScreen(productId: product.id),
+                      ),
+                    );
+                  },
                 ),
               ],
-            )),
-          ]);
-        }).toList(),
-      ),
+            ),
+          ),
+        ]);
+      }).toList(),
     );
   }
 }

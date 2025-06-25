@@ -1,303 +1,3 @@
-// // ===========Cái này hình ảnh thì để link================== 
-// import 'dart:io';
-// import 'package:image_picker/image_picker.dart';
-
-// import 'package:flutter/material.dart';
-// import '../../models/product_model.dart';
-
-// class AddEditProductScreen extends StatefulWidget {
-//   final Product? product;
-
-//   const AddEditProductScreen({super.key, this.product});
-
-//   @override
-//   State<AddEditProductScreen> createState() => _AddEditProductScreenState();
-// }
-
-// class _AddEditProductScreenState extends State<AddEditProductScreen> {
-//   final _formKey = GlobalKey<FormState>();
-
-//   late TextEditingController idController;
-//   late TextEditingController nameController;
-//   late TextEditingController descriptionController;
-//   late TextEditingController priceController;
-//   late TextEditingController stockController;
-//   late TextEditingController statusController;
-//   late TextEditingController colorController;
-//   late TextEditingController sizeController;
-//   late TextEditingController imageController;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     idController = TextEditingController(text: widget.product?.id ?? '');
-//     nameController = TextEditingController(text: widget.product?.name ?? '');
-//     descriptionController = TextEditingController(text: widget.product?.description ?? '');
-//     priceController = TextEditingController(text: widget.product?.price.toString() ?? '');
-//     stockController = TextEditingController(text: widget.product?.stock.toString() ?? '');
-//     statusController = TextEditingController(text: widget.product?.status ?? '');
-//     colorController = TextEditingController(text: widget.product?.color ?? '');
-//     sizeController = TextEditingController(text: widget.product?.size ?? '');
-//     imageController = TextEditingController(text: widget.product?.image ?? '');
-//   }
-
-//   @override
-//   void dispose() {
-//     idController.dispose();
-//     nameController.dispose();
-//     descriptionController.dispose();
-//     priceController.dispose();
-//     stockController.dispose();
-//     statusController.dispose();
-//     colorController.dispose();
-//     sizeController.dispose();
-//     imageController.dispose();
-//     super.dispose();
-//   }
-
-//   void _saveProduct() {
-//     if (_formKey.currentState!.validate()) {
-//       final newProduct = Product(
-//         id: idController.text,
-//         name: nameController.text,
-//         description: descriptionController.text,
-//         price: double.tryParse(priceController.text) ?? 0.0,
-//         stock: int.tryParse(stockController.text) ?? 0,
-//         status: statusController.text,
-//         color: colorController.text,
-//         size: sizeController.text,
-//         image: imageController.text,
-//       );
-
-//       // TODO: Gửi API thêm hoặc cập nhật product
-//       print("Lưu sản phẩm: ${newProduct.toJson()}");
-
-//       Navigator.pop(context, newProduct);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.product == null ? "Thêm sản phẩm" : "Sửa sản phẩm"),
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             children: [
-//               _buildTextField(idController, "Mã sản phẩm"),
-//               _buildTextField(nameController, "Tên sản phẩm"),
-//               _buildTextField(descriptionController, "Mô tả"),
-//               _buildTextField(priceController, "Giá", keyboardType: TextInputType.number),
-//               _buildTextField(stockController, "Tồn kho", keyboardType: TextInputType.number),
-//               _buildTextField(statusController, "Trạng thái"),
-//               _buildTextField(colorController, "Màu sắc"),
-//               _buildTextField(sizeController, "Kích cỡ"),
-//               _buildTextField(imageController, "Link hình ảnh"),
-//               const SizedBox(height: 20),
-//               ElevatedButton(
-//                 onPressed: _saveProduct,
-//                 child: const Text("Lưu"),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildTextField(TextEditingController controller, String label,
-//       {TextInputType keyboardType = TextInputType.text}) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 12),
-//       child: TextFormField(
-//         controller: controller,
-//         decoration: InputDecoration(labelText: label),
-//         keyboardType: keyboardType,
-//         validator: (value) => value!.isEmpty ? "Không được để trống" : null,
-//       ),
-//     );
-//   }
-// }
-
-
-// =========== Cái này hình ảnh thì upload file , nhưng mà nó đéo hỗ trợ trên Web ================== 
-// import 'dart:io';
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import '../../models/product_model.dart';
-
-// class AddEditProductScreen extends StatefulWidget {
-//   final Product? product;
-
-//   const AddEditProductScreen({super.key, this.product});
-
-//   @override
-//   State<AddEditProductScreen> createState() => _AddEditProductScreenState();
-// }
-
-// class _AddEditProductScreenState extends State<AddEditProductScreen> {
-//   final _formKey = GlobalKey<FormState>();
-
-//   late TextEditingController idController;
-//   late TextEditingController nameController;
-//   late TextEditingController descriptionController;
-//   late TextEditingController priceController;
-//   late TextEditingController stockController;
-//   late TextEditingController statusController;
-//   late TextEditingController colorController;
-//   late TextEditingController sizeController;
-//   late TextEditingController imageController;
-
-//   File? _pickedImage;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     idController = TextEditingController(text: widget.product?.id ?? '');
-//     nameController = TextEditingController(text: widget.product?.name ?? '');
-//     descriptionController = TextEditingController(text: widget.product?.description ?? '');
-//     priceController = TextEditingController(text: widget.product?.price.toString() ?? '');
-//     stockController = TextEditingController(text: widget.product?.stock.toString() ?? '');
-//     statusController = TextEditingController(text: widget.product?.status ?? '');
-//     colorController = TextEditingController(text: widget.product?.color ?? '');
-//     sizeController = TextEditingController(text: widget.product?.size ?? '');
-//     imageController = TextEditingController(text: widget.product?.image ?? '');
-//   }
-
-//   @override
-//   void dispose() {
-//     idController.dispose();
-//     nameController.dispose();
-//     descriptionController.dispose();
-//     priceController.dispose();
-//     stockController.dispose();
-//     statusController.dispose();
-//     colorController.dispose();
-//     sizeController.dispose();
-//     imageController.dispose();
-//     super.dispose();
-//   }
-
-//   Future<void> _pickImage() async {
-//     final picker = ImagePicker();
-//     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-//     if (pickedFile != null) {
-//       setState(() {
-//         _pickedImage = File(pickedFile.path);
-//         imageController.text = pickedFile.path; // tạm lưu đường dẫn ảnh
-//       });
-//     }
-//   }
-
-//   void _saveProduct() {
-//     if (_formKey.currentState!.validate()) {
-//       final newProduct = Product(
-//         id: idController.text,
-//         name: nameController.text,
-//         description: descriptionController.text,
-//         price: double.tryParse(priceController.text) ?? 0.0,
-//         stock: int.tryParse(stockController.text) ?? 0,
-//         status: statusController.text,
-//         color: colorController.text,
-//         size: sizeController.text,
-//         image: imageController.text,
-//       );
-
-//       // TODO: Gửi API thêm hoặc cập nhật product
-//       print("Lưu sản phẩm: ${newProduct.toJson()}");
-
-//       Navigator.pop(context, newProduct);
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(widget.product == null ? "Thêm sản phẩm" : "Sửa sản phẩm"),
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             children: [
-//               _buildTextField(idController, "Mã sản phẩm"),
-//               _buildTextField(nameController, "Tên sản phẩm"),
-//               _buildTextField(descriptionController, "Mô tả"),
-//               _buildTextField(priceController, "Giá", keyboardType: TextInputType.number),
-//               _buildTextField(stockController, "Tồn kho", keyboardType: TextInputType.number),
-//               _buildTextField(statusController, "Trạng thái"),
-//               _buildTextField(colorController, "Màu sắc"),
-//               _buildTextField(sizeController, "Kích cỡ"),
-//               const SizedBox(height: 12),
-//               Align(
-//                 alignment: Alignment.centerLeft,
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     const Text("Hình ảnh sản phẩm", style: TextStyle(fontSize: 16)),
-//                     const SizedBox(height: 8),
-//                     Row(
-//                       children: [
-//                         ElevatedButton.icon(
-//                           onPressed: _pickImage,
-//                           icon: const Icon(Icons.upload_file),
-//                           label: const Text("Chọn ảnh"),
-//                         ),
-//                         const SizedBox(width: 12),
-//                         _pickedImage != null
-//                             ? Image.file(
-//                                 _pickedImage!,
-//                                 width: 60,
-//                                 height: 60,
-//                                 fit: BoxFit.cover,
-//                               )
-//                             : imageController.text.isNotEmpty
-//                                 ? Image.file(
-//                                     File(imageController.text),
-//                                     width: 60,
-//                                     height: 60,
-//                                     fit: BoxFit.cover,
-//                                   )
-//                                 : const Text("Chưa chọn ảnh"),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-//               ElevatedButton(
-//                 onPressed: _saveProduct,
-//                 child: const Text("Lưu"),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildTextField(TextEditingController controller, String label,
-//       {TextInputType keyboardType = TextInputType.text}) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 12),
-//       child: TextFormField(
-//         controller: controller,
-//         decoration: InputDecoration(labelText: label),
-//         keyboardType: keyboardType,
-//         validator: (value) => value!.isEmpty ? "Không được để trống" : null,
-//       ),
-//     );
-//   }
-// }
-
-
 // ========== Cấu trúc JSON giống User =================
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -316,82 +16,94 @@ class AddEditProductScreen extends StatefulWidget {
 class _AddEditProductScreenState extends State<AddEditProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController maSanPhamController;
-  late TextEditingController tenSanPhamController;
-  late TextEditingController motaController;
-  late TextEditingController giaController;
-  late TextEditingController soLuongTonKhoController;
-  late TextEditingController trangThaiController;
-  late TextEditingController mauSacController;
-  late TextEditingController kichCoController;
-  late TextEditingController hinhAnhController;
+  late TextEditingController nameController;
+  late TextEditingController descriptionController;
+  late TextEditingController categoryController;
+  late TextEditingController genderTargetController;
+
+  String selectedCategory = 'T-Shirts';
+  String selectedGenderTarget = 'unisex';
+
+  final List<String> categories = [
+    'T-Shirts',
+    'Shirts',
+    'Jackets & Coats',
+    'Pants',
+    'Shorts',
+    'Knitwear',
+    'Suits & Blazers',
+    'Hoodies',
+    'Underwear',
+    'Loungewear'
+  ];
+
+  final List<String> genderTargets = [
+    'male',
+    'female',
+    'kids',
+    'unisex'
+  ];
 
   @override
   void initState() {
     super.initState();
-    maSanPhamController = TextEditingController(text: widget.product?.maSanPham ?? '');
-    tenSanPhamController = TextEditingController(text: widget.product?.tenSanPham ?? '');
-    motaController = TextEditingController(text: widget.product?.mota ?? '');
-    giaController = TextEditingController(text: widget.product?.gia.toString() ?? '');
-    soLuongTonKhoController = TextEditingController(text: widget.product?.soLuongTonKho.toString() ?? '');
-    trangThaiController = TextEditingController(text: widget.product?.trangThai ?? '');
-    mauSacController = TextEditingController(text: widget.product?.mauSac ?? '');
-    kichCoController = TextEditingController(text: widget.product?.kichCo ?? '');
-    hinhAnhController = TextEditingController(text: widget.product?.hinhAnh ?? '');
+    nameController = TextEditingController(text: widget.product?.name ?? '');
+    descriptionController = TextEditingController(text: widget.product?.description ?? '');
+    categoryController = TextEditingController(text: widget.product?.category ?? 'T-Shirts');
+    genderTargetController = TextEditingController(text: widget.product?.genderTarget ?? 'unisex');
+    
+    selectedCategory = widget.product?.category ?? 'T-Shirts';
+    selectedGenderTarget = widget.product?.genderTarget ?? 'unisex';
   }
 
   @override
   void dispose() {
-    maSanPhamController.dispose();
-    tenSanPhamController.dispose();
-    motaController.dispose();
-    giaController.dispose();
-    soLuongTonKhoController.dispose();
-    trangThaiController.dispose();
-    mauSacController.dispose();
-    kichCoController.dispose();
-    hinhAnhController.dispose();
+    nameController.dispose();
+    descriptionController.dispose();
+    categoryController.dispose();
+    genderTargetController.dispose();
     super.dispose();
   }
 
   void _saveProduct() async {
     if (_formKey.currentState!.validate()) {
-      final newProduct = Product(
-        maSanPham: widget.product?.maSanPham ?? '',
-        tenSanPham: tenSanPhamController.text,
-        mota: motaController.text,
-        gia: double.tryParse(giaController.text) ?? 0.0,
-        soLuongTonKho: int.tryParse(soLuongTonKhoController.text) ?? 0,
-        trangThai: trangThaiController.text,
-        mauSac: mauSacController.text,
-        kichCo: kichCoController.text,
-        hinhAnh: hinhAnhController.text,
-      );
+      final productData = {
+        'name': nameController.text,
+        'description': descriptionController.text,
+        'category': selectedCategory,
+        'gender_target': selectedGenderTarget,
+      };
 
       String url;
-      Map<String, dynamic> body;
+      String method;
 
       if (widget.product == null) {
-        url = 'http://localhost/MyProject/backendapi/products/add_product.php';
-        body = newProduct.toJson();
+        // Add new product
+        url = 'http://localhost/clothing_project/tonbaongu/API/products/add_product.php';
+        method = 'POST';
       } else {
-        url = 'http://localhost/MyProject/backendapi/products/update_product.php';
-        body = newProduct.toJson();
+        // Update existing product
+        url = 'http://localhost/clothing_project/tonbaongu/API/products/update_product.php';
+        method = 'POST';
+        productData['id'] = widget.product!.id.toString(); // Convert int to String
       }
 
       try {
         final response = await http.post(
           Uri.parse(url),
           headers: {'Content-Type': 'application/json'},
-          body: json.encode(body),
+          body: json.encode(productData),
         );
 
         final data = json.decode(response.body);
         if (data['success'] == true) {
-          Navigator.pop(context, newProduct);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
+          Navigator.pop(context, true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi: ${data['message']}')),
+            SnackBar(content: Text(data['message'] ?? 'Lỗi không xác định')),
           );
         }
       } catch (e) {
@@ -407,27 +119,151 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.product == null ? "Thêm sản phẩm" : "Sửa sản phẩm"),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (widget.product != null)
-                _buildTextField(maSanPhamController, "Mã sản phẩm", enabled: false),
-              _buildTextField(tenSanPhamController, "Tên sản phẩm"),
-              _buildTextField(motaController, "Mô tả"),
-              _buildTextField(giaController, "Giá", keyboardType: TextInputType.number),
-              _buildTextField(soLuongTonKhoController, "Tồn kho", keyboardType: TextInputType.number),
-              _buildTextField(trangThaiController, "Trạng thái"),
-              _buildTextField(mauSacController, "Màu sắc"),
-              _buildTextField(kichCoController, "Kích cỡ"),
-              _buildTextField(hinhAnhController, "Link hình ảnh"),
+              if (widget.product != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Thông tin sản phẩm hiện tại',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.indigo[800],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('ID: ${widget.product!.id}'),
+                        Text('Tên: ${widget.product!.name}'),
+                        Text('Danh mục: ${widget.product!.category}'),
+                        Text('Đối tượng: ${widget.product!.genderTarget}'),
+                        Text('Số biến thể: ${widget.product!.variants.length}'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+              
+              Text(
+                'Thông tin cơ bản',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo[800],
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              _buildTextField(
+                nameController,
+                "Tên sản phẩm *",
+                validator: (value) => value!.isEmpty ? "Tên sản phẩm không được để trống" : null,
+              ),
+              
+              _buildTextField(
+                descriptionController,
+                "Mô tả",
+                maxLines: 3,
+              ),
+              
+              const SizedBox(height: 16),
+              Text(
+                'Danh mục và đối tượng',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo[700],
+                ),
+              ),
+              const SizedBox(height: 12),
+              
+              _buildDropdown(
+                'Danh mục *',
+                selectedCategory,
+                categories,
+                (value) {
+                  setState(() {
+                    selectedCategory = value!;
+                  });
+                },
+              ),
+              
+              const SizedBox(height: 12),
+              
+              _buildDropdown(
+                'Đối tượng *',
+                selectedGenderTarget,
+                genderTargets,
+                (value) {
+                  setState(() {
+                    selectedGenderTarget = value!;
+                  });
+                },
+              ),
+              
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveProduct,
-                child: const Text("Lưu"),
+              
+              if (widget.product != null && widget.product!.variants.isNotEmpty) ...[
+                Card(
+                  color: Colors.orange[50],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info, color: Colors.orange[700]),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Lưu ý',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Sản phẩm này có ${widget.product!.variants.length} biến thể. '
+                          'Việc thay đổi thông tin sản phẩm sẽ không ảnh hưởng đến các biến thể hiện có.',
+                          style: TextStyle(color: Colors.orange[700]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+              
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveProduct,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: Text(
+                    widget.product == null ? "Thêm sản phẩm" : "Cập nhật sản phẩm",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ],
           ),
@@ -436,16 +272,102 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      {TextInputType keyboardType = TextInputType.text, bool enabled = true}) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
-        decoration: InputDecoration(labelText: label),
+        style: TextStyle(
+          color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.indigo[600],
+            fontWeight: FontWeight.w500,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.indigo[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.indigo[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.indigo[600]!, width: 2),
+          ),
+          filled: true,
+          fillColor: Colors.grey[50],
+        ),
         keyboardType: keyboardType,
-        enabled: enabled,
-        validator: (value) => value!.isEmpty ? "Không được để trống" : null,
+        maxLines: maxLines,
+        validator: validator ?? (value) => value!.isEmpty ? "Trường này không được để trống" : null,
+      ),
+    );
+  }
+
+  Widget _buildDropdown(
+    String label,
+    String value,
+    List<String> items,
+    void Function(String?) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        style: TextStyle(
+          color: Colors.blue,
+          fontSize: 16,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            color: Colors.blue,
+            fontWeight: FontWeight.w500,
+          ),
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.indigo[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.indigo[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.indigo[600]!, width: 2),
+          ),
+          filled: true,
+          fillColor: Colors.white, // màu background của input
+        ),
+        dropdownColor: Colors.white, // màu background của dropdown menu
+        items: items.map((String item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(
+              item,
+              style: TextStyle(
+                color: Colors.black, // màu text của dropdown
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          );
+        }).toList(),
+        onChanged: onChanged,
+        validator: (value) => value == null ? "Vui lòng chọn $label" : null,
       ),
     );
   }
