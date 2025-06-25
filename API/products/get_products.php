@@ -13,7 +13,7 @@ require_once '../config/db_connect.php';
 
 // Get products with their variants
 $sql = "SELECT p.id, p.name, p.description, p.category, p.gender_target, p.created_at, p.updated_at,
-               pv.id as variant_id, pv.color, pv.size, pv.material, pv.style, pv.price, pv.stock, pv.image_url, pv.status
+               pv.id as variant_id, pv.color, pv.size, pv.material, pv.price, pv.stock, pv.image_url, pv.status
         FROM products p
         LEFT JOIN product_variants pv ON p.id = pv.product_id
         ORDER BY p.id, pv.id";
@@ -52,7 +52,6 @@ while ($row = $result->fetch_assoc()) {
             'color' => $row['color'],
             'size' => $row['size'],
             'material' => $row['material'],
-            'style' => $row['style'],
             'price' => (float)$row['price'],
             'stock' => (int)$row['stock'],
             'image_url' => $row['image_url'],
