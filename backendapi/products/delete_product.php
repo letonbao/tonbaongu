@@ -19,12 +19,12 @@ if ($maSP) {
     $stmt->bind_param("i", $maSP);
 
     if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "Xóa thành công"]);
+        echo json_encode(["success" => 200, "message" => "Xóa thành công"]);
     } else {
-        echo json_encode(["success" => false, "message" => "Lỗi: " . $conn->error]);
+        echo json_encode(["success" => 400, "message" => "Lỗi: " . $conn->error]);
     }
     $stmt->close();
 } else {
-    echo json_encode(["success" => false, "message" => "Thiếu MaSanPham"]);
+    echo json_encode(["success" => 400, "message" => "Thiếu MaSanPham"]);
 }
 ?> 

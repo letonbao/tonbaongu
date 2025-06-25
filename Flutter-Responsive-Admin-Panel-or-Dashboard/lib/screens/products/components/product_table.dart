@@ -33,14 +33,14 @@ class ProductTable extends StatelessWidget {
 
         if (response.statusCode == 200) {
           final result = json.decode(response.body);
-          if (result['success'] == true) {
+          if (result['success'] == 200) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Xóa sản phẩm thành công")),
             );
             onReload();
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Lỗi: ${result['message']}")),
+              SnackBar(content: Text("Lỗi: \\${result['message']}")),
             );
           }
         } else {
@@ -83,30 +83,42 @@ class ProductTable extends StatelessWidget {
             DataCell(Text(product.kichCo)),
             DataCell(
               product.hinhAnh.isNotEmpty
-                  ? Image.network(product.hinhAnh, width: 40, height: 40, fit: BoxFit.cover,
+                  ? Image.network(
+                      product.hinhAnh.startsWith('http')
+                          ? product.hinhAnh
+                          : 'http://localhost/MyProject/${product.hinhAnh}',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => const Icon(Icons.error))
                   : const SizedBox(width: 40, height: 40),
             ),
-            DataCell(Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () async {
-                    final updatedProduct = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => AddEditProductScreen(product: product),
-                      ),
-                    );
-                    if (updatedProduct != null) onReload();
-                  },
+            DataCell(
+              SizedBox(
+                width: 90,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () async {
+                        final updatedProduct = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddEditProductScreen(product: product),
+                          ),
+                        );
+                        if (updatedProduct != null) onReload();
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteProduct(context, product.maSanPham),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteProduct(context, product.maSanPham),
-                ),
-              ],
-            )),
+              ),
+            ),
           ]);
         }).toList(),
       ),

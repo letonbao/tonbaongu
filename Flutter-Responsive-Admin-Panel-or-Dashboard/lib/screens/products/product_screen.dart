@@ -75,6 +75,7 @@ class _ProductScreenState extends State<ProductScreen> {
           final List<Product> loadedProducts = (data['data'] as List)
               .map((item) => Product.fromJson(item))
               .toList();
+          if (!mounted) return;
           setState(() {
             products = loadedProducts;
           });

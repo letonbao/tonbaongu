@@ -299,10 +299,14 @@
 
 
 // ========== Cấu trúc JSON giống User =================
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../models/product_model.dart';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 
 class AddEditProductScreen extends StatefulWidget {
   final Product? product;
@@ -316,90 +320,112 @@ class AddEditProductScreen extends StatefulWidget {
 class _AddEditProductScreenState extends State<AddEditProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController maSanPhamController;
-  late TextEditingController tenSanPhamController;
-  late TextEditingController motaController;
-  late TextEditingController giaController;
-  late TextEditingController soLuongTonKhoController;
-  late TextEditingController trangThaiController;
-  late TextEditingController mauSacController;
-  late TextEditingController kichCoController;
-  late TextEditingController hinhAnhController;
+  late TextEditingController idController;
+  late TextEditingController nameController;
+  late TextEditingController descriptionController;
+  late TextEditingController priceController;
+  late TextEditingController stockController;
+  late TextEditingController statusController;
+  late TextEditingController colorController;
+  late TextEditingController sizeController;
+
+  Uint8List? _pickedImageBytes;
+  String? _pickedImageName;
+  String? _uploadedImageUrl;
 
   @override
   void initState() {
     super.initState();
-    maSanPhamController = TextEditingController(text: widget.product?.maSanPham ?? '');
-    tenSanPhamController = TextEditingController(text: widget.product?.tenSanPham ?? '');
-    motaController = TextEditingController(text: widget.product?.mota ?? '');
-    giaController = TextEditingController(text: widget.product?.gia.toString() ?? '');
-    soLuongTonKhoController = TextEditingController(text: widget.product?.soLuongTonKho.toString() ?? '');
-    trangThaiController = TextEditingController(text: widget.product?.trangThai ?? '');
-    mauSacController = TextEditingController(text: widget.product?.mauSac ?? '');
-    kichCoController = TextEditingController(text: widget.product?.kichCo ?? '');
-    hinhAnhController = TextEditingController(text: widget.product?.hinhAnh ?? '');
+    idController = TextEditingController(text: widget.product?.maSanPham ?? '');
+    nameController = TextEditingController(text: widget.product?.tenSanPham ?? '');
+    descriptionController = TextEditingController(text: widget.product?.mota ?? '');
+    priceController = TextEditingController(text: widget.product?.gia.toString() ?? '');
+    stockController = TextEditingController(text: widget.product?.soLuongTonKho.toString() ?? '');
+    statusController = TextEditingController(text: widget.product?.trangThai ?? '');
+    colorController = TextEditingController(text: widget.product?.mauSac ?? '');
+    sizeController = TextEditingController(text: widget.product?.kichCo ?? '');
+    _uploadedImageUrl = widget.product?.hinhAnh;
   }
 
   @override
   void dispose() {
-    maSanPhamController.dispose();
-    tenSanPhamController.dispose();
-    motaController.dispose();
-    giaController.dispose();
-    soLuongTonKhoController.dispose();
-    trangThaiController.dispose();
-    mauSacController.dispose();
-    kichCoController.dispose();
-    hinhAnhController.dispose();
+    idController.dispose();
+    nameController.dispose();
+    descriptionController.dispose();
+    priceController.dispose();
+    stockController.dispose();
+    statusController.dispose();
+    colorController.dispose();
+    sizeController.dispose();
     super.dispose();
   }
 
-  void _saveProduct() async {
+  Future<void> _pickImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.single.bytes != null) {
+      setState(() {
+        _pickedImageBytes = result.files.single.bytes;
+        _pickedImageName = result.files.single.name;
+      });
+      await _uploadImage(_pickedImageBytes!, _pickedImageName!);
+    }
+  }
+
+  Future<void> _uploadImage(Uint8List imageBytes, String fileName) async {
+    final uri = Uri.parse('http://localhost/MyProject/backendapi/products/upload_image.php');
+    var request = http.MultipartRequest('POST', uri);
+    request.files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: fileName));
+    var response = await request.send();
+    if (!mounted) return;
+    if (response.statusCode == 200) {
+      final respStr = await response.stream.bytesToString();
+      final data = json.decode(respStr);
+      if (data['success'] == 1) {
+        if (!mounted) return;
+        setState(() {
+          _uploadedImageUrl = data['url'];
+        });
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi upload ảnh: ${data['message']}')),
+        );
+      }
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lỗi upload ảnh!')),
+      );
+    }
+  }
+
+  void _saveProduct() {
     if (_formKey.currentState!.validate()) {
       final newProduct = Product(
-        maSanPham: widget.product?.maSanPham ?? '',
-        tenSanPham: tenSanPhamController.text,
-        mota: motaController.text,
-        gia: double.tryParse(giaController.text) ?? 0.0,
-        soLuongTonKho: int.tryParse(soLuongTonKhoController.text) ?? 0,
-        trangThai: trangThaiController.text,
-        mauSac: mauSacController.text,
-        kichCo: kichCoController.text,
-        hinhAnh: hinhAnhController.text,
+        maSanPham: idController.text,
+        tenSanPham: nameController.text,
+        mota: descriptionController.text,
+        gia: double.tryParse(priceController.text) ?? 0.0,
+        soLuongTonKho: int.tryParse(stockController.text) ?? 0,
+        trangThai: statusController.text,
+        mauSac: colorController.text,
+        kichCo: sizeController.text,
+        hinhAnh: _uploadedImageUrl ?? '',
       );
-
-      String url;
-      Map<String, dynamic> body;
-
-      if (widget.product == null) {
-        url = 'http://localhost/MyProject/backendapi/products/add_product.php';
-        body = newProduct.toJson();
-      } else {
-        url = 'http://localhost/MyProject/backendapi/products/update_product.php';
-        body = newProduct.toJson();
-      }
-
-      try {
-        final response = await http.post(
-          Uri.parse(url),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(body),
-        );
-
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          Navigator.pop(context, newProduct);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lỗi: ${data['message']}')),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi kết nối: $e')),
-        );
-      }
+      Navigator.pop(context, newProduct);
     }
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, {TextInputType keyboardType = TextInputType.text}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(labelText: label),
+        keyboardType: keyboardType,
+        validator: (value) => value!.isEmpty ? "Không được để trống" : null,
+      ),
+    );
   }
 
   @override
@@ -414,16 +440,40 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
           key: _formKey,
           child: Column(
             children: [
-              if (widget.product != null)
-                _buildTextField(maSanPhamController, "Mã sản phẩm", enabled: false),
-              _buildTextField(tenSanPhamController, "Tên sản phẩm"),
-              _buildTextField(motaController, "Mô tả"),
-              _buildTextField(giaController, "Giá", keyboardType: TextInputType.number),
-              _buildTextField(soLuongTonKhoController, "Tồn kho", keyboardType: TextInputType.number),
-              _buildTextField(trangThaiController, "Trạng thái"),
-              _buildTextField(mauSacController, "Màu sắc"),
-              _buildTextField(kichCoController, "Kích cỡ"),
-              _buildTextField(hinhAnhController, "Link hình ảnh"),
+              _buildTextField(idController, "Mã sản phẩm"),
+              _buildTextField(nameController, "Tên sản phẩm"),
+              _buildTextField(descriptionController, "Mô tả"),
+              _buildTextField(priceController, "Giá", keyboardType: TextInputType.number),
+              _buildTextField(stockController, "Tồn kho", keyboardType: TextInputType.number),
+              _buildTextField(statusController, "Trạng thái"),
+              _buildTextField(colorController, "Màu sắc"),
+              _buildTextField(sizeController, "Kích cỡ"),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Hình ảnh sản phẩm", style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _pickImage,
+                          icon: const Icon(Icons.upload_file),
+                          label: const Text("Chọn ảnh"),
+                        ),
+                        const SizedBox(width: 12),
+                        _pickedImageBytes != null
+                            ? Image.memory(_pickedImageBytes!, width: 60, height: 60, fit: BoxFit.cover)
+                            : (_uploadedImageUrl != null && _uploadedImageUrl!.isNotEmpty)
+                                ? Image.network('http://localhost/MyProject/${_uploadedImageUrl!}', width: 60, height: 60, fit: BoxFit.cover)
+                                : const Text("Chưa chọn ảnh"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _saveProduct,
@@ -432,20 +482,6 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String label,
-      {TextInputType keyboardType = TextInputType.text, bool enabled = true}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(labelText: label),
-        keyboardType: keyboardType,
-        enabled: enabled,
-        validator: (value) => value!.isEmpty ? "Không được để trống" : null,
       ),
     );
   }
