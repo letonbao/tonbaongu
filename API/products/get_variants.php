@@ -23,13 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
 if ($product_id) {
     // Get variants for specific product
-    $sql = "SELECT pv.id, pv.product_id, pv.color, pv.size, pv.material, pv.style, 
-                   pv.price, pv.stock, pv.image_url, pv.status,
-                   p.name as product_name, p.category
-            FROM product_variants pv
-            JOIN products p ON pv.product_id = p.id
-            WHERE pv.product_id = ?
-            ORDER BY pv.color, pv.size";
+    $sql = "SELECT pv.id, pv.product_id, pv.color, pv.size, pv.material, pv.price, pv.stock, pv.image_url, pv.status, p.name as product_name, p.category FROM product_variants pv JOIN products p ON pv.product_id = p.id WHERE pv.product_id = ? ORDER BY pv.color, pv.size";
     
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $product_id);
@@ -38,7 +32,19 @@ if ($product_id) {
     
     $variants = [];
     while ($row = $result->fetch_assoc()) {
-        $variants[] = $row;
+        $variants[] = [
+            'id' => (int)$row['id'],
+            'product_id' => (int)$row['product_id'],
+            'color' => $row['color'],
+            'size' => $row['size'],
+            'material' => $row['material'],
+            'price' => (float)$row['price'],
+            'stock' => (int)$row['stock'],
+            'image_url' => $row['image_url'],
+            'status' => $row['status'],
+            'product_name' => $row['product_name'],
+            'category' => $row['category']
+        ];
     }
     
     $stmt->close();
@@ -48,10 +54,18 @@ if ($product_id) {
     $product_stmt->bind_param("i", $product_id);
     $product_stmt->execute();
     $product_result = $product_stmt->get_result();
-    $product_info = $product_result->fetch_assoc();
+    $product_row = $product_result->fetch_assoc();
     $product_stmt->close();
     
-    if ($product_info) {
+    if ($product_row) {
+        $product_info = [
+            'id' => (int)$product_row['id'],
+            'name' => $product_row['name'],
+            'description' => $product_row['description'],
+            'category' => $product_row['category'],
+            'gender_target' => $product_row['gender_target']
+        ];
+        
         echo json_encode([
             "success" => true,
             "message" => "Lấy danh sách biến thể thành công",
@@ -68,18 +82,26 @@ if ($product_id) {
     
 } else {
     // Get all variants (for admin purposes)
-    $sql = "SELECT pv.id, pv.product_id, pv.color, pv.size, pv.material, pv.style, 
-                   pv.price, pv.stock, pv.image_url, pv.status,
-                   p.name as product_name, p.category, p.gender_target
-            FROM product_variants pv
-            JOIN products p ON pv.product_id = p.id
-            ORDER BY p.name, pv.color, pv.size";
+    $sql = "SELECT pv.id, pv.product_id, pv.color, pv.size, pv.material, pv.price, pv.stock, pv.image_url, pv.status, p.name as product_name, p.category, p.gender_target FROM product_variants pv JOIN products p ON pv.product_id = p.id ORDER BY p.name, pv.color, pv.size";
     
     $result = $conn->query($sql);
     
     $variants = [];
     while ($row = $result->fetch_assoc()) {
-        $variants[] = $row;
+        $variants[] = [
+            'id' => (int)$row['id'],
+            'product_id' => (int)$row['product_id'],
+            'color' => $row['color'],
+            'size' => $row['size'],
+            'material' => $row['material'],
+            'price' => (float)$row['price'],
+            'stock' => (int)$row['stock'],
+            'image_url' => $row['image_url'],
+            'status' => $row['status'],
+            'product_name' => $row['product_name'],
+            'category' => $row['category'],
+            'gender_target' => $row['gender_target']
+        ];
     }
     
     echo json_encode([

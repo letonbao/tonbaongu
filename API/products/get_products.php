@@ -24,7 +24,7 @@ $products = [];
 $current_product = null;
 
 while ($row = $result->fetch_assoc()) {
-    $product_id = $row['id'];
+    $product_id = (int)$row['id'];
     
     // If this is a new product
     if ($current_product === null || $current_product['id'] != $product_id) {
@@ -33,7 +33,7 @@ while ($row = $result->fetch_assoc()) {
         }
         
         $current_product = [
-            'id' => $row['id'],
+            'id' => (int)$row['id'],
             'name' => $row['name'],
             'description' => $row['description'],
             'category' => $row['category'],
@@ -47,13 +47,14 @@ while ($row = $result->fetch_assoc()) {
     // Add variant if exists
     if ($row['variant_id'] !== null) {
         $current_product['variants'][] = [
-            'id' => $row['variant_id'],
+            'id' => (int)$row['variant_id'],
+            'product_id' => (int)$row['id'],
             'color' => $row['color'],
             'size' => $row['size'],
             'material' => $row['material'],
             'style' => $row['style'],
-            'price' => $row['price'],
-            'stock' => $row['stock'],
+            'price' => (float)$row['price'],
+            'stock' => (int)$row['stock'],
             'image_url' => $row['image_url'],
             'status' => $row['status']
         ];

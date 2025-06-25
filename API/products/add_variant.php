@@ -18,7 +18,6 @@ if (!empty($data['product_id'])) {
     $color = $data['color'] ?? 'black';
     $size = $data['size'] ?? 'M';
     $material = $data['material'] ?? 'Cotton';
-    $style = $data['style'] ?? '';
     $price = $data['price'] ?? 0;
     $stock = $data['stock'] ?? 0;
     $image_url = $data['image_url'] ?? '';
@@ -65,17 +64,6 @@ if (!empty($data['product_id'])) {
         exit();
     }
     
-    // If style is not provided, get it from the product
-    if (empty($style)) {
-        $style_stmt = $conn->prepare("SELECT category FROM products WHERE id = ?");
-        $style_stmt->bind_param("i", $product_id);
-        $style_stmt->execute();
-        $style_result = $style_stmt->get_result();
-        $product_data = $style_result->fetch_assoc();
-        $style = $product_data['category'];
-        $style_stmt->close();
-    }
-    
     // Check if variant already exists
     $duplicate_stmt = $conn->prepare("SELECT id FROM product_variants WHERE product_id = ? AND color = ? AND size = ?");
     $duplicate_stmt->bind_param("iss", $product_id, $color, $size);
@@ -90,8 +78,8 @@ if (!empty($data['product_id'])) {
     $duplicate_stmt->close();
 
     // Insert variant
-    $stmt = $conn->prepare("INSERT INTO product_variants (product_id, color, size, material, style, price, stock, image_url, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issssdiss", $product_id, $color, $size, $material, $style, $price, $stock, $image_url, $status);
+    $stmt = $conn->prepare("INSERT INTO product_variants (product_id, color, size, material, price, stock, image_url, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssdiss", $product_id, $color, $size, $material, $price, $stock, $image_url, $status);
     
     if ($stmt->execute()) {
         $variant_id = $conn->insert_id;

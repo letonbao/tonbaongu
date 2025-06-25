@@ -18,7 +18,6 @@ if (!empty($data['variant_id'])) {
     $color = $data['color'] ?? null;
     $size = $data['size'] ?? null;
     $material = $data['material'] ?? null;
-    $style = $data['style'] ?? null;
     $price = $data['price'] ?? null;
     $stock = $data['stock'] ?? null;
     $image_url = $data['image_url'] ?? null;
@@ -41,7 +40,7 @@ if (!empty($data['variant_id'])) {
     $check_stmt->close();
     
     // Get current variant data to merge with updates
-    $current_stmt = $conn->prepare("SELECT color, size, material, style, price, stock, image_url, status FROM product_variants WHERE id = ?");
+    $current_stmt = $conn->prepare("SELECT color, size, material, price, stock, image_url, status FROM product_variants WHERE id = ?");
     $current_stmt->bind_param("i", $variant_id);
     $current_stmt->execute();
     $current_result = $current_stmt->get_result();
@@ -52,7 +51,6 @@ if (!empty($data['variant_id'])) {
     $color = $color ?? $current_data['color'];
     $size = $size ?? $current_data['size'];
     $material = $material ?? $current_data['material'];
-    $style = $style ?? $current_data['style'];
     $price = $price ?? $current_data['price'];
     $stock = $stock ?? $current_data['stock'];
     $image_url = $image_url ?? $current_data['image_url'];
@@ -71,7 +69,6 @@ if (!empty($data['variant_id'])) {
         echo json_encode(["success" => false, "message" => "Kích thước không hợp lệ"]);
         exit();
     }
-    
     // Validate material
     $valid_materials = ['Cotton','Linen','Wool','Polyester','Denim','Leather','Silk','Nylon'];
     if (!in_array($material, $valid_materials)) {
@@ -99,9 +96,9 @@ if (!empty($data['variant_id'])) {
     }
     $duplicate_stmt->close();
     
-    // Update variant
-    $stmt = $conn->prepare("UPDATE product_variants SET color = ?, size = ?, material = ?, style = ?, price = ?, stock = ?, image_url = ?, status = ? WHERE id = ?");
-    $stmt->bind_param("ssssdssi", $color, $size, $material, $style, $price, $stock, $image_url, $status, $variant_id);
+    // Update variant (không còn material)
+    $stmt = $conn->prepare("UPDATE product_variants SET color = ?, size = ?, material = ?, price = ?, stock = ?, image_url = ?, status = ? WHERE id = ?");
+    $stmt->bind_param("sssdis si", $color, $size, $material, $price, $stock, $image_url, $status, $variant_id);
     
     if ($stmt->execute()) {
         echo json_encode([
@@ -113,7 +110,6 @@ if (!empty($data['variant_id'])) {
                 "color" => $color,
                 "size" => $size,
                 "material" => $material,
-                "style" => $style,
                 "price" => $price,
                 "stock" => $stock,
                 "image_url" => $image_url,
